@@ -12,6 +12,8 @@ export default function Game() {
   const [gameOver, setGameOver] = useState(false);
   const [won, setWon] = useState(false);
   const [keepPlaying, setKeepPlaying] = useState(false);
+  const [prevState, setPrevState] = useState(null);
+  const [undoUsed, setUndoUsed] = useState(false);
 
   const handleMove = useCallback(
     (direction) => {
@@ -20,6 +22,9 @@ export default function Game() {
 
       const result = move(grid, direction);
       if (!result.moved) return;
+
+      // Save state for undo before applying the move
+      setPrevState({ grid, score });
 
       const newGrid = addRandomTile(result.grid);
       const newScore = score + result.score;
@@ -69,12 +74,23 @@ export default function Game() {
   // Swipe controls for mobile
   useSwipe(handleMove);
 
+  const undo = useCallback(() => {
+    if (!prevState || undoUsed) return;
+    setGrid(prevState.grid);
+    setScore(prevState.score);
+    setPrevState(null);
+    setUndoUsed(true);
+    setGameOver(false);
+  }, [prevState, undoUsed]);
+
   const restart = () => {
     setGrid(initGame());
     setScore(0);
     setGameOver(false);
     setWon(false);
     setKeepPlaying(false);
+    setPrevState(null);
+    setUndoUsed(false);
   };
 
   const continueGame = () => {
@@ -99,9 +115,19 @@ export default function Game() {
 
       <div className="game-intro">
         <p>Join the tiles, get to <strong>2048!</strong></p>
-        <button className="new-game-btn" onClick={restart}>
-          New Game
-        </button>
+        <div className="header-buttons">
+          <button
+            className="undo-btn"
+            onClick={undo}
+            disabled={!prevState || undoUsed}
+            title={undoUsed ? 'Undo already used this game' : 'Undo last move'}
+          >
+            ↩
+          </button>
+          <button className="new-game-btn" onClick={restart}>
+            New Game
+          </button>
+        </div>
       </div>
 
       <div className="board-wrapper">

@@ -118,6 +118,38 @@ body {
   transform: scale(0.97);
 }
 
+.header-buttons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.undo-btn {
+  background: #8f7a66;
+  color: #f9f6f2;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s;
+  line-height: 1;
+}
+
+.undo-btn:hover:not(:disabled) {
+  background: #9f8b77;
+}
+
+.undo-btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.undo-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .board-wrapper {
   position: relative;
   width: var(--board-size);
