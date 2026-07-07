@@ -1,5 +1,4 @@
-const GRID_SIZE = 4;
-const WIN_TILE = 2048;
+import { GRID_SIZE, WIN_TILE, SPAWN_TWO_PROBABILITY } from './constants';
 
 export function createEmptyGrid() {
   return Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(0));
@@ -15,7 +14,7 @@ export function addRandomTile(grid, rng = Math.random) {
   if (empty.length === 0) return grid;
   const { r, c } = empty[Math.floor(rng() * empty.length)];
   const newGrid = grid.map(row => [...row]);
-  newGrid[r][c] = rng() < 0.9 ? 2 : 4;
+  newGrid[r][c] = rng() < SPAWN_TWO_PROBABILITY ? 2 : 4;
   return newGrid;
 }
 
