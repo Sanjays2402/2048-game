@@ -4,7 +4,7 @@ export function createEmptyGrid() {
   return Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(0));
 }
 
-export function addRandomTile(grid) {
+export function addRandomTile(grid, rng = Math.random) {
   const empty = [];
   for (let r = 0; r < GRID_SIZE; r++) {
     for (let c = 0; c < GRID_SIZE; c++) {
@@ -12,9 +12,9 @@ export function addRandomTile(grid) {
     }
   }
   if (empty.length === 0) return grid;
-  const { r, c } = empty[Math.floor(Math.random() * empty.length)];
+  const { r, c } = empty[Math.floor(rng() * empty.length)];
   const newGrid = grid.map(row => [...row]);
-  newGrid[r][c] = Math.random() < 0.9 ? 2 : 4;
+  newGrid[r][c] = rng() < 0.9 ? 2 : 4;
   return newGrid;
 }
 
@@ -98,9 +98,9 @@ export function hasWon(grid) {
   return false;
 }
 
-export function initGame() {
+export function initGame(rng = Math.random) {
   let grid = createEmptyGrid();
-  grid = addRandomTile(grid);
-  grid = addRandomTile(grid);
+  grid = addRandomTile(grid, rng);
+  grid = addRandomTile(grid, rng);
   return grid;
 }
