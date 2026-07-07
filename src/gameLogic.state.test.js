@@ -37,4 +37,8 @@ describe('hasWon', () => {
   it('is true when a 2048 tile is present', () => {
     expect(hasWon(grid([[2048, 0, 0, 0]]))).toBe(true);
   });
+
+  it('is true when a tile has merged past 2048 (e.g. 4096)', () => {
+    expect(hasWon(grid([[0, 0, 4096, 0]]))).toBe(true);
+  });
 });

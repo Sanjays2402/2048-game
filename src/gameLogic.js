@@ -1,4 +1,5 @@
 const GRID_SIZE = 4;
+const WIN_TILE = 2048;
 
 export function createEmptyGrid() {
   return Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(0));
@@ -94,7 +95,7 @@ export function isGameOver(grid) {
 export function hasWon(grid) {
   for (let r = 0; r < GRID_SIZE; r++) {
     for (let c = 0; c < GRID_SIZE; c++) {
-      if (grid[r][c] === 2048) return true;
+      if (grid[r][c] >= WIN_TILE) return true;
     }
   }
   return false;
