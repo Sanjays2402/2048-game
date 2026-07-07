@@ -1,14 +1,14 @@
 import { useState, useCallback, useEffect } from 'react';
 import Board from './Board';
 import { useSwipe } from './useSwipe';
+import { useLocalStorage } from './useLocalStorage';
+import { BEST_SCORE_KEY } from './constants';
 import { initGame, move, addRandomTile, isGameOver, hasWon } from './gameLogic';
 
 export default function Game() {
   const [grid, setGrid] = useState(initGame);
   const [score, setScore] = useState(0);
-  const [best, setBest] = useState(() => {
-    return parseInt(localStorage.getItem('2048-best') || '0', 10);
-  });
+  const [best, setBest] = useLocalStorage(BEST_SCORE_KEY, 0);
   const [gameOver, setGameOver] = useState(false);
   const [won, setWon] = useState(false);
   const [keepPlaying, setKeepPlaying] = useState(false);
@@ -34,7 +34,6 @@ export default function Game() {
 
       if (newScore > best) {
         setBest(newScore);
-        localStorage.setItem('2048-best', String(newScore));
       }
 
       if (!won && !keepPlaying && hasWon(newGrid)) {
