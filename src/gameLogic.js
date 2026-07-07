@@ -1,9 +1,24 @@
 import { GRID_SIZE, WIN_TILE, SPAWN_TWO_PROBABILITY } from './constants';
 
+/**
+ * @typedef {number[][]} Grid A GRID_SIZE x GRID_SIZE matrix; 0 means empty.
+ */
+
+/**
+ * Create an empty GRID_SIZE x GRID_SIZE grid filled with zeros.
+ * @returns {Grid}
+ */
 export function createEmptyGrid() {
   return Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(0));
 }
 
+/**
+ * Return a new grid with one random empty cell filled (90% a 2, 10% a 4).
+ * Pure: the input grid is not mutated.
+ * @param {Grid} grid
+ * @param {() => number} [rng] Random source in [0,1); injectable for tests.
+ * @returns {Grid} A new grid, or the same reference if there were no empties.
+ */
 export function addRandomTile(grid, rng = Math.random) {
   const empty = [];
   for (let r = 0; r < GRID_SIZE; r++) {
@@ -49,6 +64,14 @@ function rotateGrid(grid) {
   return rotated;
 }
 
+/**
+ * Apply a move in the given direction: slide + merge every line once.
+ * Pure: the input grid is not mutated.
+ * @param {Grid} grid
+ * @param {'up'|'down'|'left'|'right'} direction
+ * @returns {{ grid: Grid, score: number, moved: boolean }}
+ *   The resulting grid, points gained this move, and whether anything changed.
+ */
 export function move(grid, direction) {
   let rotations = { left: 0, up: 3, right: 2, down: 1 }[direction];
   let current = grid;
@@ -80,6 +103,11 @@ function gridsEqual(a, b) {
   return true;
 }
 
+/**
+ * Whether no moves remain (board full and no adjacent equal tiles).
+ * @param {Grid} grid
+ * @returns {boolean}
+ */
 export function isGameOver(grid) {
   for (let r = 0; r < GRID_SIZE; r++) {
     for (let c = 0; c < GRID_SIZE; c++) {
@@ -91,6 +119,11 @@ export function isGameOver(grid) {
   return true;
 }
 
+/**
+ * Whether the grid contains a winning tile (>= WIN_TILE).
+ * @param {Grid} grid
+ * @returns {boolean}
+ */
 export function hasWon(grid) {
   for (let r = 0; r < GRID_SIZE; r++) {
     for (let c = 0; c < GRID_SIZE; c++) {
@@ -100,6 +133,11 @@ export function hasWon(grid) {
   return false;
 }
 
+/**
+ * Create a fresh starting grid with two random tiles.
+ * @param {() => number} [rng] Random source in [0,1); injectable for tests.
+ * @returns {Grid}
+ */
 export function initGame(rng = Math.random) {
   let grid = createEmptyGrid();
   grid = addRandomTile(grid, rng);
