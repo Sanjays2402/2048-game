@@ -70,8 +70,10 @@ export function move(grid, direction) {
 }
 
 function gridsEqual(a, b) {
-  for (let r = 0; r < GRID_SIZE; r++) {
-    for (let c = 0; c < GRID_SIZE; c++) {
+  if (a.length !== b.length) return false;
+  for (let r = 0; r < a.length; r++) {
+    if (a[r].length !== b[r].length) return false;
+    for (let c = 0; c < a[r].length; c++) {
       if (a[r][c] !== b[r][c]) return false;
     }
   }
