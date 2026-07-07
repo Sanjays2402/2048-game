@@ -104,7 +104,7 @@ export default function Game() {
     <div className="game-container">
       <header className="game-header">
         <h1 className="game-title">2048</h1>
-        <div className="scores">
+        <div className="scores" role="status" aria-live="polite">
           <div className="score-box">
             <span className="score-label">Score</span>
             <span className="score-value">{score}</span>
@@ -127,6 +127,7 @@ export default function Game() {
             className="undo-btn"
             onClick={undo}
             disabled={prevStates.length === 0}
+            aria-label="Undo last move"
             title={prevStates.length === 0 ? 'Nothing to undo' : 'Undo last move'}
           >
             ↩
