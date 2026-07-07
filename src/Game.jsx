@@ -12,8 +12,7 @@ export default function Game() {
   const [gameOver, setGameOver] = useState(false);
   const [won, setWon] = useState(false);
   const [keepPlaying, setKeepPlaying] = useState(false);
-  const [prevState, setPrevState] = useState(null);
-  const [undoUsed, setUndoUsed] = useState(false);
+  const [prevStates, setPrevStates] = useState([]);
 
   const handleMove = useCallback(
     (direction) => {
@@ -23,8 +22,8 @@ export default function Game() {
       const result = move(grid, direction);
       if (!result.moved) return;
 
-      // Save state for undo before applying the move
-      setPrevState({ grid, score });
+      // Push current state onto the undo history (cap depth to keep memory bounded).
+      setPrevStates((h) => [...h.slice(-49), { grid, score }]);
 
       const newGrid = addRandomTile(result.grid);
       const newScore = score + result.score;
@@ -42,7 +41,7 @@ export default function Game() {
         setGameOver(true);
       }
     },
-    [grid, score, best, gameOver, won, keepPlaying]
+    [grid, score, best, gameOver, won, keepPlaying, setBest]
   );
 
   // Keyboard controls
@@ -74,13 +73,15 @@ export default function Game() {
   useSwipe(handleMove);
 
   const undo = useCallback(() => {
-    if (!prevState || undoUsed) return;
-    setGrid(prevState.grid);
-    setScore(prevState.score);
-    setPrevState(null);
-    setUndoUsed(true);
-    setGameOver(false);
-  }, [prevState, undoUsed]);
+    setPrevStates((h) => {
+      if (h.length === 0) return h;
+      const last = h[h.length - 1];
+      setGrid(last.grid);
+      setScore(last.score);
+      setGameOver(false);
+      return h.slice(0, -1);
+    });
+  }, []);
 
   const restart = () => {
     setGrid(initGame());
@@ -88,8 +89,7 @@ export default function Game() {
     setGameOver(false);
     setWon(false);
     setKeepPlaying(false);
-    setPrevState(null);
-    setUndoUsed(false);
+    setPrevStates([]);
   };
 
   const continueGame = () => {
@@ -118,8 +118,8 @@ export default function Game() {
           <button
             className="undo-btn"
             onClick={undo}
-            disabled={!prevState || undoUsed}
-            title={undoUsed ? 'Undo already used this game' : 'Undo last move'}
+            disabled={prevStates.length === 0}
+            title={prevStates.length === 0 ? 'Nothing to undo' : 'Undo last move'}
           >
             ↩
           </button>
