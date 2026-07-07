@@ -13,6 +13,7 @@ export default function Game() {
   const [won, setWon] = useState(false);
   const [keepPlaying, setKeepPlaying] = useState(false);
   const [prevStates, setPrevStates] = useState([]);
+  const [moves, setMoves] = useState(0);
 
   const handleMove = useCallback(
     (direction) => {
@@ -23,7 +24,8 @@ export default function Game() {
       if (!result.moved) return;
 
       // Push current state onto the undo history (cap depth to keep memory bounded).
-      setPrevStates((h) => [...h.slice(-49), { grid, score }]);
+      setPrevStates((h) => [...h.slice(-49), { grid, score, moves }]);
+      setMoves((m) => m + 1);
 
       const newGrid = addRandomTile(result.grid);
       const newScore = score + result.score;
@@ -41,7 +43,7 @@ export default function Game() {
         setGameOver(true);
       }
     },
-    [grid, score, best, gameOver, won, keepPlaying, setBest]
+    [grid, score, best, gameOver, won, keepPlaying, moves, setBest]
   );
 
   // Keyboard controls
@@ -78,6 +80,7 @@ export default function Game() {
       const last = h[h.length - 1];
       setGrid(last.grid);
       setScore(last.score);
+      setMoves(last.moves);
       setGameOver(false);
       return h.slice(0, -1);
     });
@@ -90,6 +93,7 @@ export default function Game() {
     setWon(false);
     setKeepPlaying(false);
     setPrevStates([]);
+    setMoves(0);
   };
 
   const continueGame = () => {
@@ -108,6 +112,10 @@ export default function Game() {
           <div className="score-box">
             <span className="score-label">Best</span>
             <span className="score-value">{best}</span>
+          </div>
+          <div className="score-box">
+            <span className="score-label">Moves</span>
+            <span className="score-value">{moves}</span>
           </div>
         </div>
       </header>
