@@ -21,11 +21,17 @@ function getFontSize(value) {
   return 'clamp(1.6rem, 5vw, 2.6rem)';
 }
 
-const Tile = memo(function Tile({ value }) {
+const Tile = memo(function Tile({ value, row, col }) {
   const colors = TILE_COLORS[value] || { bg: '#3c3a32', text: '#f9f6f2' };
+  const position = row !== undefined && col !== undefined
+    ? `Row ${row + 1}, column ${col + 1}: `
+    : '';
+  const label = value ? `${position}tile ${value}` : `${position}empty`;
 
   return (
     <div
+      role="gridcell"
+      aria-label={label}
       className={`tile ${value ? 'tile-filled' : ''} ${value ? `tile-${Math.min(value, 2048)}` : ''}`}
       style={{
         backgroundColor: colors.bg,

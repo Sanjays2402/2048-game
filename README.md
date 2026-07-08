@@ -1,7 +1,8 @@
 # 🎮 2048 Game
 
-![React](https://img.shields.io/badge/React-19-61DAFB?style=flat&logo=react&logoColor=white)
-![Vite](https://img.shields.io/badge/Vite-6-646CFF?style=flat&logo=vite&logoColor=white)
+![React](https://img.shields.io/badge/React-18-61DAFB?style=flat&logo=react&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-8-646CFF?style=flat&logo=vite&logoColor=white)
+![Vitest](https://img.shields.io/badge/tested_with-Vitest-6E9F18?style=flat&logo=vitest&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-F7DF1E?style=flat&logo=javascript&logoColor=black)
 
 A sleek, modern implementation of the classic **2048 puzzle game** built with React and Vite. Slide tiles, merge numbers, and reach 2048!
@@ -9,9 +10,12 @@ A sleek, modern implementation of the classic **2048 puzzle game** built with Re
 ## ✨ Features
 
 - 🎯 Classic 2048 gameplay with smooth animations
-- ⌨️ Keyboard arrow key controls
+- ⌨️ Keyboard arrow key controls (plus WASD)
 - 📱 Touch/swipe support for mobile devices
 - 🏆 Score tracking with persistent best score (localStorage)
+- ↩️ Multi-level undo
+- 🔢 Move counter
+- ♿ Accessible: ARIA grid/labels + `prefers-reduced-motion` support
 - 🎉 Win detection at 2048 with option to keep playing
 - 💀 Game over detection when no moves remain
 - ⚡ Fast & responsive — powered by Vite HMR
@@ -38,6 +42,20 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 npm run build
 npm run preview
 ```
+
+## 🧪 Testing
+
+Unit tests run on [Vitest](https://vitest.dev) with Testing Library and jsdom:
+
+```bash
+npm test          # run the suite once
+npm run test:watch # watch mode
+npm run coverage   # coverage report
+```
+
+The suite covers the core game logic (merging, sliding, all four directions,
+win/lose detection, deterministic tile spawning via an injectable RNG) and the
+`useLocalStorage` hook.
 
 ## 🏗️ Project Structure
 

@@ -1,19 +1,19 @@
 import { useState, useCallback, useEffect } from 'react';
 import Board from './Board';
 import { useSwipe } from './useSwipe';
+import { useLocalStorage } from './useLocalStorage';
+import { BEST_SCORE_KEY } from './constants';
 import { initGame, move, addRandomTile, isGameOver, hasWon } from './gameLogic';
 
 export default function Game() {
   const [grid, setGrid] = useState(initGame);
   const [score, setScore] = useState(0);
-  const [best, setBest] = useState(() => {
-    return parseInt(localStorage.getItem('2048-best') || '0', 10);
-  });
+  const [best, setBest] = useLocalStorage(BEST_SCORE_KEY, 0);
   const [gameOver, setGameOver] = useState(false);
   const [won, setWon] = useState(false);
   const [keepPlaying, setKeepPlaying] = useState(false);
-  const [prevState, setPrevState] = useState(null);
-  const [undoUsed, setUndoUsed] = useState(false);
+  const [prevStates, setPrevStates] = useState([]);
+  const [moves, setMoves] = useState(0);
 
   const handleMove = useCallback(
     (direction) => {
@@ -23,8 +23,9 @@ export default function Game() {
       const result = move(grid, direction);
       if (!result.moved) return;
 
-      // Save state for undo before applying the move
-      setPrevState({ grid, score });
+      // Push current state onto the undo history (cap depth to keep memory bounded).
+      setPrevStates((h) => [...h.slice(-49), { grid, score, moves }]);
+      setMoves((m) => m + 1);
 
       const newGrid = addRandomTile(result.grid);
       const newScore = score + result.score;
@@ -34,7 +35,6 @@ export default function Game() {
 
       if (newScore > best) {
         setBest(newScore);
-        localStorage.setItem('2048-best', String(newScore));
       }
 
       if (!won && !keepPlaying && hasWon(newGrid)) {
@@ -43,7 +43,7 @@ export default function Game() {
         setGameOver(true);
       }
     },
-    [grid, score, best, gameOver, won, keepPlaying]
+    [grid, score, best, gameOver, won, keepPlaying, moves, setBest]
   );
 
   // Keyboard controls
@@ -75,13 +75,16 @@ export default function Game() {
   useSwipe(handleMove);
 
   const undo = useCallback(() => {
-    if (!prevState || undoUsed) return;
-    setGrid(prevState.grid);
-    setScore(prevState.score);
-    setPrevState(null);
-    setUndoUsed(true);
-    setGameOver(false);
-  }, [prevState, undoUsed]);
+    setPrevStates((h) => {
+      if (h.length === 0) return h;
+      const last = h[h.length - 1];
+      setGrid(last.grid);
+      setScore(last.score);
+      setMoves(last.moves);
+      setGameOver(false);
+      return h.slice(0, -1);
+    });
+  }, []);
 
   const restart = () => {
     setGrid(initGame());
@@ -89,8 +92,8 @@ export default function Game() {
     setGameOver(false);
     setWon(false);
     setKeepPlaying(false);
-    setPrevState(null);
-    setUndoUsed(false);
+    setPrevStates([]);
+    setMoves(0);
   };
 
   const continueGame = () => {
@@ -101,7 +104,7 @@ export default function Game() {
     <div className="game-container">
       <header className="game-header">
         <h1 className="game-title">2048</h1>
-        <div className="scores">
+        <div className="scores" role="status" aria-live="polite">
           <div className="score-box">
             <span className="score-label">Score</span>
             <span className="score-value">{score}</span>
@@ -109,6 +112,10 @@ export default function Game() {
           <div className="score-box">
             <span className="score-label">Best</span>
             <span className="score-value">{best}</span>
+          </div>
+          <div className="score-box">
+            <span className="score-label">Moves</span>
+            <span className="score-value">{moves}</span>
           </div>
         </div>
       </header>
@@ -119,8 +126,9 @@ export default function Game() {
           <button
             className="undo-btn"
             onClick={undo}
-            disabled={!prevState || undoUsed}
-            title={undoUsed ? 'Undo already used this game' : 'Undo last move'}
+            disabled={prevStates.length === 0}
+            aria-label="Undo last move"
+            title={prevStates.length === 0 ? 'Nothing to undo' : 'Undo last move'}
           >
             ↩
           </button>
